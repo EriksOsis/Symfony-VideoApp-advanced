@@ -15,6 +15,8 @@ abstract class CategoryTreeAbstract
 
     public array $categoriesArrayFromDb;
 
+    public $categorylist;
+
     public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator)
     {
         $this->entityManager = $entityManager;

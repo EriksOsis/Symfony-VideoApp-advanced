@@ -1,5 +1,7 @@
 {% extends 'front/admin/base.html.twig' %}
 {% block customstylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/styles/dashboard.css') }}">
     <style>
         .fa-ul > li {
             margin-top: 15px;
@@ -10,53 +12,7 @@
 {% block mainadmin %}
     <h2>Categories list</h2>
 
-    <ul class="fa-ul text-left">
-        <li><i class="fa-li fa fa-arrow-right"></i>Funny <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <ul class="fa-ul text-left">
-            <li><i class="fa-li fa fa-arrow-right"></i>For kids <a href="{{ path('edit_category') }}">edit</a> <a
-                        onclick="return confirm('Are you sure?');"
-                        href="#">delete</a></li>
-            <li><i class="fa-li fa fa-arrow-right"></i>For adults <a href="{{ path('edit_category') }}">edit</a> <a
-                        onclick="return confirm('Are you sure?');"
-                        href="#">delete</a></li>
-            <ul class="fa-ul text-left">
-                <li><i class="fa-li fa fa-arrow-right"></i>Strange <a href="{{ path('edit_category') }}">edit</a> <a
-                            onclick="return confirm('Are you sure?');"
-                            href="#">delete</a></li>
-            </ul>
-        </ul>
-        <li><i class="fa-li fa fa-arrow-right"></i>Scary <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <li><i class="fa-li fa fa-arrow-right"></i>Unbelievable <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <li><i class="fa-li fa fa-arrow-right"></i>Inspirational <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <li><i class="fa-li fa fa-arrow-right"></i>Motivating <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <li><i class="fa-li fa fa-arrow-right"></i>Surprising <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-        <li><i class="fa-li fa fa-arrow-right"></i>Sad</li>
-        <ul class="fa-ul text-left">
-            <li><i class="fa-li fa fa-arrow-right"></i>Strange <a href="{{ path('edit_category') }}">edit</a> <a
-                        onclick="return confirm('Are you sure?');"
-                        href="#">delete</a></li>
-            <ul class="fa-ul text-left">
-                <li><i class="fa-li fa fa-arrow-right"></i>Boring <a href="{{ path('edit_category') }}">edit</a> <a
-                            onclick="return confirm('Are you sure?');"
-                            href="#">delete</a></li>
-            </ul>
-        </ul>
-        <li><i class="fa-li fa fa-arrow-right"></i>Relaxing <a href="{{ path('edit_category') }}">edit</a> <a
-                    onclick="return confirm('Are you sure?');"
-                    href="#">delete</a></li>
-    </ul>
+    {{ categories|raw }}
 
     <form action="#" method="POST">
         <div class="col-md-4 mb-3">
