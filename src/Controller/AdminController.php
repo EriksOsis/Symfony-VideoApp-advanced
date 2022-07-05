@@ -70,11 +70,26 @@ class AdminController extends AbstractController
         return $this->render('/front/admin/users.html.twig');
     }
 
-    #[Route('/edit-category/{id}', name: 'edit_category')]
-    public function editCategory(Category $category): Response
+    #[Route('/edit-category/{id}', name: 'edit_category', methods: ["GET", "POST"])]
+    public function editCategory(Category $category, Request $request): Response
     {
+        $form = $this->createForm(CategoryType::class, $category);
+        $isInvalid = null;
+
+        if ($this->saveCategory($category, $form, $request)) {
+
+            return $this->redirectToRoute('categories');
+
+        } elseif ($request->isMethod('post')) {
+
+            $isInvalid = ' is-invalid';
+
+        }
+
         return $this->render('/front/admin/edit_category.html.twig', [
-            'category' => $category
+            'category' => $category,
+            'form' => $form->createView(),
+            'isInvalid' => $isInvalid
         ]);
     }
 
@@ -99,7 +114,7 @@ class AdminController extends AbstractController
 
     private function saveCategory($category, $form, $request): bool
     {
-        $form->handleRequest($request);
+//        $form->handleRequest($request); A form can only be submitted once error
 
         if ($form->isSubmitted() && $form->isValid()) {
             $category->setName($request->get('category')['name']);
