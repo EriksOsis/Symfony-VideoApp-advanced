@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Utils;
 
-use PHPUnit\Framework\TestCase;
+use App\Utils\CategoryTreeFrontPage;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestcase;
 
-class CategoryTest extends TestCase
+class CategoryTest extends KernelTestCase
 {
-    public function testSomething(): void
+    public function setUp(): void
     {
-        $this->assertTrue(true);
+        $kernel = self::bootKernel();
+        $urlGenerator = $kernel->getContainer()->get('router');
+
+
     }
 }

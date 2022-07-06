@@ -2,6 +2,7 @@
 
 namespace App\Utils\AbstractClasses;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -17,6 +18,9 @@ abstract class CategoryTreeAbstract
 
     public $categorylist;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator)
     {
         $this->entityManager = $entityManager;
@@ -41,6 +45,9 @@ abstract class CategoryTreeAbstract
         return $subcategory;
     }
 
+    /**
+     * @throws Exception
+     */
     private function getCategories(): array
     {
         if (self::$dbconnection) {

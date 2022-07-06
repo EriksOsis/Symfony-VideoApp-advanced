@@ -19,7 +19,7 @@ class CategoryTreeFrontPage extends CategoryTreeAbstract
     public function getCategoryListAndParent(int $id): string
     {
         $this->slugger = new AppExtension; // twig extensions slugify url for categories
-        $parentData = $this->getMainParent($id); //
+        $parentData = $this->getMainParent($id); // getting main parent id
         $this->mainParentName = $parentData['name']; // for accessing in view
         $this->mainParentId = $parentData['id'];// for accessing in view
         $key = array_search($id, array_column($this->categoriesArrayFromDb, 'id'));
@@ -58,5 +58,19 @@ class CategoryTreeFrontPage extends CategoryTreeAbstract
             ];
 
         }
+    }
+
+    public function getChildsIds(int $parent): array // get subcategories id
+    {
+        static $ids = []; // array with video ids
+        foreach ($this->categoriesArrayFromDb as $category) {
+            if ($category['parent_id'] == $parent) // if there is a parent id for a category
+            {
+                $ids[] = $category['id'] . ','; // add that categories` id to the array
+                $this->getChildsIds($category['id']); // get categories id
+            }
+        }
+
+        return $ids;
     }
 }

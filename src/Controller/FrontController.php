@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Video;
 use App\Utils\CategoryTreeFrontPage;
 use Doctrine\Persistence\ManagerRegistry;
+use http\Env\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,12 +23,17 @@ class FrontController extends AbstractController
         return $this->render('front/index.html.twig');
     }
 
-    #[Route('/video-list/category/{categoryname}, {id}', name: 'video_list')]
-    public function videoList($id, CategoryTreeFrontPage $categories): Response
+    #[Route('/video-list/category/{categoryname}, {id}/{page}', name: 'video_list', defaults: ['page' => '1'])]
+    public function videoList($id, $page, CategoryTreeFrontPage $categories, Response $request): Response
     {
         $categories->getCategoryListAndParent($id);
+        $ids = $categories->getChildsIds($id);
+        array_push($ids, $id);
+        dump($categories->buildTree($id));
+        $videos = $this->doctrine->getRepository(Video::class)->findByChildIds($ids, $page, $request->get('sortby'));
         return $this->render('front/video_list.html.twig', [
-            'subcategories' => $categories
+            'subcategories' => $categories,
+            'videos' => $videos
         ]);
     }
 
@@ -36,10 +43,22 @@ class FrontController extends AbstractController
         return $this->render('front/video_details.html.twig');
     }
 
-    #[Route('/search-results', name: 'search_results', methods: 'POST')]
-    public function searchResults(): Response
+    #[Route('/search-results/{page}', name: 'search_results', defaults: ['page' => '1'], methods: 'GET')]
+    public function searchResults($page, Request $request): Response
     {
-        return $this->render('front/search_results.html.twig');
+        $videos = null;
+        $query = null;
+        if ($query = $request->get('query')) {
+            $videos = $this->doctrine->getRepository(Video::class)
+                ->findByTitle($query, $page, $request->get('sortby'));
+
+
+            if (!$videos->getitems()) $videos = null;
+        }
+        return $this->render('front/search_results.html.twig', [
+            'videos' => $videos,
+            'query' => $query,
+        ]);
     }
 
     #[Route('/pricing', name: 'pricing')]
