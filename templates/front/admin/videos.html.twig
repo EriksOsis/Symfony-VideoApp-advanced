@@ -5,7 +5,7 @@
     {% endblock %}
 {% block mainadmin %}
 
-    {% if is_granted{'ROLE_ADMIN'} %}
+    {% if is_granted('ROLE_ADMIN') %}
         <h2>Videos</h2>
     {% else %}
         <h2>My liked videos</h2>

@@ -116,7 +116,7 @@ class FrontController extends AbstractController
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    private function loginUserAutomatically($user)
+    private function loginUserAutomatically($user) //logs in user after registration
     {
         $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
         $this->container->get('security.token_storage')->setToken($token);
