@@ -1,10 +1,18 @@
 {% extends 'base.html.twig' %}
+
+{% block customstylesheets %}
+    {{parent()}}
+    {% if app.user %}
+        <link rel="stylesheet" href="{{asset('/build/styles/likes.css')}}">
+    {% endif %}
+{% endblock %}
+
 {% block main %}
     <section class="jumbotron text-center">
         <div class="container">
             {% if videos %}
                 <h1 class="jumbotron-heading">Search results</h1>
-                {{ include('front/includes/_sort.html.twig',{'query': query}) }}
+                {{ include('front/includes/_sort.html.twig',{'query':query}) }}
             {% else %}
                 <h1 class="jumbotron-heading">No results were found</h1>
             {% endif %}
@@ -15,3 +23,11 @@
         {{ knp_pagination_render(videos) }}
     {% endif %}
 {% endblock %}
+{% block customjavascripts %}
+    {{parent()}}
+    {% if app.user %}
+        <script src="{{asset('/build/likes.js')}}"></script>
+    {% endif %}
+{% endblock %}
+
+

@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\User;
 use App\Entity\Category;
 use App\Entity\Video;
 use App\Form\UserType;
+use App\Repository\VideoRepository;
 use App\Utils\CategoryTreeFrontPage;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -42,10 +45,103 @@ class FrontController extends AbstractController
         ]);
     }
 
-    #[Route('/video-details', name: 'video_details')]
-    public function videoDetails(): Response
+    #[Route('/video-details/{video}', name: 'video_details')]
+    public function videoDetails(VideoRepository $repo, $video): Response
     {
-        return $this->render('front/video_details.html.twig');
+        return $this->render('front/video_details.html.twig', [
+            'video' => $repo->videoDetails($video),
+        ]);
+    }
+
+    #[Route('/video-details/{video}/like', name: 'like_video', methods: 'POST')]
+    #[Route('/video-details/{video}/dislike', name: 'dislike_video', methods: 'POST')]
+    #[Route('/video-details/{video}/unlike', name: 'undo_like_video', methods: 'POST')]
+    #[Route('/video-details/{video}/undodislike', name: 'undo_dislike_video', methods: 'POST')]
+    public function togglesLikesAjax(Video $video, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        switch ($request->get('_route')) {
+            case 'like_video':
+                $request = $this->likeVideo($video);
+                break;
+
+            case 'dislike_video':
+                $request = $this->dislikeVideo($video);
+                break;
+
+            case 'undo_like_video':
+                $request = $this->undoLikeVideo($video);
+                break;
+
+            case 'undo_dislike_video';
+                $request = $this->undoDislikeVideo($video);
+                break;
+        }
+        return $this->json(['action' => $result, 'id' => $video->getId()]);
+    }
+
+    private function likeVideo($video)
+    {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
+        $user->addLikedVideo($video);
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return 'liked';
+    }
+
+    private function dislikeVideo($video)
+    {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
+        $user->addDislikedVideo($video);
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return 'disliked';
+    }
+
+    private function undoLikeVideo($video)
+    {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
+        $user->removeLikedVideo($video);
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return 'undo liked';
+    }
+
+    private function undoDislikeVideo($video)
+    {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
+        $user->removeDisikedVideo($video);
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+        return 'undo disliked';
+    }
+
+    #[Route('/new/comment/{video}', name: 'new_comment', methods: 'POST')]
+    public function newComment(Video $video, Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        if (!empty(trim($request->get('comment')))) {
+            $comment = new Comment();
+            $comment->setContent($request->get('comment'));
+            $comment->setUser($this->getUser()); //errors, bet strādā?
+            $comment->setVideo($video);
+
+            $entityManager = $this->doctrine->getManager();
+            $entityManager->persist($comment);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('video_details', ['video' => $video->getId()]);
     }
 
     // todo VAJAG SAPRAST, KĀPĒC $query paliek null pēc input submit.
@@ -142,4 +238,6 @@ class FrontController extends AbstractController
             'categories' => $categories
         ]);
     }
+
+
 }
