@@ -1,8 +1,8 @@
-$( document ).ready(function () {
+$(document).ready(function () {
+
     $('.userLikesVideo').show();
     $('.userDoesNotLikeVideo').show();
     $('.noActionYet').show();
-
 
     $('.toggle-likes').on('click', function (e) {
         e.preventDefault();
@@ -23,7 +23,6 @@ $( document ).ready(function () {
                     $('.video-id-' + data.id).hide();
 
                     break;
-
                 case 'disliked':
                     var number_of_dislikes_str = $('.number-of-dislikes-' + data.id);
                     var number_of_dislikes = parseInt(number_of_dislikes_str.html().replace(/\D/g, '')) + 1;
@@ -33,7 +32,6 @@ $( document ).ready(function () {
                     $('.video-id-' + data.id).hide();
 
                     break;
-
                 case 'undo liked':
                     var number_of_likes_str = $('.number-of-likes-' + data.id);
 
@@ -53,8 +51,12 @@ $( document ).ready(function () {
                     $('.dislikes-video-id-' + data.id).hide();
                     $('.likes-video-id-' + data.id).hide();
 
+
                     break;
+
             }
+
         })
     });
+
 });

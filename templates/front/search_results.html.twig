@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block customstylesheets %}
-    {{parent()}}
+    {{ parent() }}
     {% if app.user %}
-        <link rel="stylesheet" href="{{asset('/build/styles/likes.css')}}">
+        <link rel="stylesheet" href="{{ asset('/build/styles/likes.css') }}">
     {% endif %}
 {% endblock %}
 
@@ -23,10 +23,10 @@
         {{ knp_pagination_render(videos) }}
     {% endif %}
 {% endblock %}
-{% block customjavascripts %}
-    {{parent()}}
+{% block customjavascript %}
+    {{ parent() }}
     {% if app.user %}
-        <script src="{{asset('/build/likes.js')}}"></script>
+        <script src="{{ asset('public/build/likes.js') }}"></script>
     {% endif %}
 {% endblock %}
 

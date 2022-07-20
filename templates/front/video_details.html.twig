@@ -51,9 +51,9 @@
         </div>
     </div>
 {% endblock %}
-{% block customjavascripts %}
+{% block customjavascript %}
     {{ parent() }}
     {% if app.user %}
-        <script src="{{ asset('build/likes.js') }}"></script>
+        <script src="{{ asset('public/build/likes.js') }}"></script>
     {% endif %}
 {% endblock %}

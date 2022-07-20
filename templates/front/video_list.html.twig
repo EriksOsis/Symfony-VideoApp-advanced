@@ -10,10 +10,8 @@
 {% block main %}
 
     <main role="main">
-
         <section class="jumbotron text-center">
             <div class="container">
-
                 <h1 class="jumbotron-heading">Category - {{ subcategories.currentCategoryName }}</h1>
                 <div class="btn-group">
                     <div class="dropdown ml-2">
@@ -42,9 +40,9 @@
         {{ knp_pagination_render(videos) }}
     </main>
 {% endblock %}
-{% block customjavascripts %}
+{% block customjavascript %}
     {{ parent() }}
     {% if app.user %}
-        <script src="{{ asset('build/likes.js') }}"></script>
+        <script src="{{ asset('public/build/likes.js') }}"></script>
     {% endif %}
 {% endblock %}
