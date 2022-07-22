@@ -63,19 +63,19 @@ class FrontController extends AbstractController
 
         switch ($request->get('_route')) {
             case 'like_video':
-                $request = $this->likeVideo($video);
+                $result = $this->likeVideo($video);
                 break;
 
             case 'dislike_video':
-                $request = $this->dislikeVideo($video);
+                $result = $this->dislikeVideo($video);
                 break;
 
             case 'undo_like_video':
-                $request = $this->undoLikeVideo($video);
+                $result = $this->undoLikeVideo($video);
                 break;
 
             case 'undo_dislike_video';
-                $request = $this->undoDislikeVideo($video);
+                $result = $this->undoDislikeVideo($video);
                 break;
         }
         return $this->json(['action' => $result, 'id' => $video->getId()]);
@@ -117,7 +117,7 @@ class FrontController extends AbstractController
     private function undoDislikeVideo($video)
     {
         $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
-        $user->removeDisikedVideo($video);
+        $user->removeDislikedVideo($video);
 
         $entityManager = $this->doctrine->getManager();
         $entityManager->persist($user);

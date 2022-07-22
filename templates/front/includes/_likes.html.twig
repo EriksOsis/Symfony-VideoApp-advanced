@@ -1,12 +1,9 @@
 {% if video in app.user.getLikedVideos %}
     {% set userLikesVideo = 'userLikesVideo' %}
-
 {% elseif video in app.user.getDislikedVideos %}
     {% set userDoesNotLikeVideo = 'userDoesNotLikeVideo' %}
-
 {% else %}
     {% set noActionYet = 'noActionYet' %}
-
 {% endif %}
 
 <button data-toggle="tooltip" data-placement="top" title="Click to like the video" type="button"
