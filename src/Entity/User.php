@@ -222,7 +222,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getSubscription(): ?Subscription
+    public function getSubscription()
     {
         return $this->subscription;
     }

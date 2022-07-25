@@ -1,8 +1,4 @@
 {% extends 'front/admin/base.html.twig' %}
-    {% block customstylesheets %}
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('build/styles/dashboard.css') }}">
-    {% endblock %}
 {% block mainadmin %}
 
     {% if is_granted('ROLE_ADMIN') %}

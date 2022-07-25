@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Video;
+use App\Entity\User;
 use App\Utils\CategoryTreeAdminOptionList;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +19,13 @@ class MainController extends AbstractController
     #[Route('/', name: 'admin')]
     public function index(): Response
     {
-        return $this->render('/front/admin/my_profile.html.twig');
+        if ($this->getUser()) {
+            return $this->render('/front/admin/my_profile.html.twig', [
+                'subscription' => $this->getUser()->getSubscription()
+            ]);
+        } else {
+            return $this->render('/front/admin/my_profile.html.twig');
+        }
     }
 
     #[Route('/videos', name: 'videos')]
@@ -43,5 +50,24 @@ class MainController extends AbstractController
             'categories' => $categories,
             'editedCategory' => $editedCategory
         ]);
+    }
+
+    #[Route('/cancel-plan', name: 'cancel_plan')]
+    public function cancelPlan()
+    {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
+
+        $subscription = $user->getSubscription();
+        $subscription->setValidTo(new \DateTime());
+        $subscription->setPaymentStatus(null);
+        $subscription->setPlan('canceled');
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->persist($subscription);
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('admin');
     }
 }
