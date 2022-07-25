@@ -7,9 +7,12 @@ use App\Entity\User;
 use App\Utils\CategoryTreeAdminOptionList;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
+#[Route('/admin')]
 class MainController extends AbstractController
 {
     public function __construct(private ManagerRegistry $doctrine)
@@ -19,13 +22,9 @@ class MainController extends AbstractController
     #[Route('/', name: 'admin')]
     public function index(): Response
     {
-        if ($this->getUser()) {
-            return $this->render('/front/admin/my_profile.html.twig', [
-                'subscription' => $this->getUser()->getSubscription()
-            ]);
-        } else {
-            return $this->render('/front/admin/my_profile.html.twig');
-        }
+        return $this->render('/front/admin/my_profile.html.twig', [
+            'subscription' => $this->getUser()->getSubscription()
+        ]);
     }
 
     #[Route('/videos', name: 'videos')]
@@ -53,7 +52,7 @@ class MainController extends AbstractController
     }
 
     #[Route('/cancel-plan', name: 'cancel_plan')]
-    public function cancelPlan()
+    public function cancelPlan(): RedirectResponse
     {
         $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
 
