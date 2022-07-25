@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Video;
+use App\Utils\VideoForNoValidSubscription;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ class SearchController extends AbstractController
     }
 
     #[Route('/search-results/{page}', name: 'search_results', defaults: ['page' => '1'], methods: 'GET')]
-    public function searchResults($page, Request $request): Response
+    public function searchResults($page, Request $request, VideoForNoValidSubscription $videoNoMembers): Response
     {
         $videos = null;
         $query = null;
@@ -32,6 +33,7 @@ class SearchController extends AbstractController
         return $this->render('front/search_results.html.twig', [
             'videos' => $videos,
             'query' => $query,
+            'video_no_members' => $videoNoMembers->check()
         ]);
     }
 }

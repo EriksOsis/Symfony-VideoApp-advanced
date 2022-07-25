@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
 use App\Utils\CategoryTreeFrontPage;
+use App\Utils\VideoForNoValidSubscription;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +20,7 @@ class VideoController extends AbstractController
     }
 
     #[Route('/video-list/category/{categoryname}, {id}/{page}', name: 'video_list', defaults: ['page' => '1'])]
-    public function videoList($id, $page, CategoryTreeFrontPage $categories, Request $request): Response
+    public function videoList($id, $page, CategoryTreeFrontPage $categories, Request $request, VideoForNoValidSubscription $videoNoMembers): Response
     {
         $categories->getCategoryListAndParent($id);
         $ids = $categories->getChildsIds($id);
@@ -28,15 +29,17 @@ class VideoController extends AbstractController
         $videos = $this->doctrine->getRepository(Video::class)->findByChildIds($ids, $page, $request->get('sortby'));
         return $this->render('front/video_list.html.twig', [
             'subcategories' => $categories,
-            'videos' => $videos
+            'videos' => $videos,
+            'video_no_members' => $videoNoMembers->check()
         ]);
     }
 
     #[Route('/video-details/{video}', name: 'video_details')]
-    public function videoDetails(VideoRepository $repo, $video): Response
+    public function videoDetails(VideoRepository $repo, $video, VideoForNoValidSubscription $videoNoMembers): Response
     {
         return $this->render('front/video_details.html.twig', [
             'video' => $repo->videoDetails($video),
+            'video_no_members' => $videoNoMembers->check()
         ]);
     }
 }
