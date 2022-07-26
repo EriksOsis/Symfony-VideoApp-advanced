@@ -1,16 +1,20 @@
 {% extends 'base.html.twig' %}
-{% block customstylesheets %}
-    {{ parent() }}
-    {% if app.user %}
-        <link rel="stylesheet" href="{{ asset('build/styles/likes.css') }}">
-    {% endif %}
-{% endblock %}
-{% block main %}
 
+
+{% if video_no_members is not null %}
+    {% set videoid = 'https://player.vimeo.com/video/' ~ video_no_members %}
+{% else %}
+    {% set videoid = video.vimeoid %}
+{% endif %}
+
+
+{% block main %}
     <br>
     <h1>{{ video.title }}</h1>
     <div align="center" class="embed-responsive embed-responsive-16by9">
+
         <iframe class="" src="{{ videoid }}" frameborder="0" allowfullscreen></iframe>
+
     </div>
 
     <hr>
@@ -25,8 +29,8 @@
                     <img class="mr-3" src="{{ asset('assets/img/user.jpg') }}" alt="Generic placeholder image">
                     <div class="media-body">
                         <h5 class="mt-0 mb-1"><b>{{ comment.user.name }} {{ comment.user.lastname }}</b> <small
-                                    class="text-muted">added a comment
-                                <small><b>{{ comment.createdat|ago }}</b></small></small></h5>
+                                    class="text-muted">added a comment <small><b>{{ comment.createdat|ago }}</b></small></small>
+                        </h5>
                         {{ comment.content }}
                     </div>
                 </li>
@@ -39,10 +43,10 @@
 
     <div class="row">
         <div class="col-md-12">
-            <form method="POST" action="{{ path('new_comment', {'video':video.id }) }} #video_comments">
+            <form method="POST" action="{{ path('new_comment',{'video':video.id}) }}#video_comments">
                 <div class="form-group">
                     <label for="exampleFormControlTextarea1">Add a comment</label>
-                    <textarea required name="comment" class="form-control" id="exampleFormControlTextarea1"
+                    <textarea name="comment" required class="form-control" id="exampleFormControlTextarea1"
                               rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Add</button>
@@ -50,72 +54,4 @@
             </form>
         </div>
     </div>
-{% endblock %}
-{% block customjavascript %}
-    {{ parent() }}
-    {% if app.user %}
-        <script>$(document).ready(function () {
-
-                $('.userLikesVideo').show();
-                $('.userDoesNotLikeVideo').show();
-                $('.noActionYet').show();
-
-                $('.toggle-likes').on('click', function (e) {
-                    e.preventDefault();
-
-                    var $link = $(e.currentTarget);
-
-                    $.ajax({
-                        method: 'POST',
-                        url: $link.attr('href')
-                    }).done(function (data) {
-                        switch (data.action) {
-                            case 'liked':
-                                var number_of_likes_str = $('.number-of-likes-' + data.id);
-                                var number_of_likes = parseInt(number_of_likes_str.html().replace(/\D/g, '')) + 1;
-                                number_of_likes_str.html('(' + number_of_likes + ')');
-                                $('.likes-video-id-' + data.id).show();
-                                $('.dislikes-video-id-' + data.id).hide();
-                                $('.video-id-' + data.id).hide();
-
-                                break;
-                            case 'disliked':
-                                var number_of_dislikes_str = $('.number-of-dislikes-' + data.id);
-                                var number_of_dislikes = parseInt(number_of_dislikes_str.html().replace(/\D/g, '')) + 1;
-                                number_of_dislikes_str.html('(' + number_of_dislikes + ')');
-                                $('.dislikes-video-id-' + data.id).show();
-                                $('.likes-video-id-' + data.id).hide();
-                                $('.video-id-' + data.id).hide();
-
-                                break;
-                            case 'undo liked':
-                                var number_of_likes_str = $('.number-of-likes-' + data.id);
-
-                                var number_of_likes = parseInt(number_of_likes_str.html().replace(/\D/g, '')) - 1;
-                                number_of_likes_str.html('(' + number_of_likes + ')');
-                                $('.video-id-' + data.id).show();
-                                $('.dislikes-video-id-' + data.id).hide();
-                                $('.likes-video-id-' + data.id).hide();
-
-                                break;
-
-                            case 'undo disliked':
-                                var number_of_dislikes_str = $('.number-of-dislikes-' + data.id);
-                                var number_of_dislikes = parseInt(number_of_dislikes_str.html().replace(/\D/g, '')) - 1;
-                                number_of_dislikes_str.html('(' + number_of_dislikes + ')');
-                                $('.video-id-' + data.id).show();
-                                $('.dislikes-video-id-' + data.id).hide();
-                                $('.likes-video-id-' + data.id).hide();
-
-
-                                break;
-
-                        }
-
-                    })
-                });
-
-            });
-        </script>
-    {% endif %}
 {% endblock %}

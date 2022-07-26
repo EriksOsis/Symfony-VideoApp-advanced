@@ -9,15 +9,17 @@ namespace App\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+use App\Entity\Subscription;
 use App\Entity\User;
 use App\Form\UserType;
 
@@ -30,22 +32,35 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/login', name: 'login')]
-    public function login(AuthenticationUtils $helper)
+    public function login(AuthenticationUtils $helper): Response
     {
         return $this->render('front/login.html.twig', [
             'error' => $helper->getLastAuthenticationError()
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Route('/logout', name: 'logout')]
     public function logout(): void
     {
         throw new \Exception('This should never be reached!');
     }
 
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     #[Route('/register/{plan}', name: 'register', defaults: ['plan' => null])]
-    public function register(UserPasswordHasherInterface $password_encoder, Request $request, SessionInterface $session, $plan): Response
+    public function register(UserPasswordHasherInterface $password_hasher, Request $request, SessionInterface $session, $plan): RedirectResponse|Response
     {
+
+        if ($request->isMethod('GET')) {
+            $session->set('planName', $plan);
+            $session->set('planPrice', Subscription::getPlanDataPriceByName($plan));
+        }
+
         $user = new User;
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
@@ -55,7 +70,7 @@ class SecurityController extends AbstractController
             $user->setName($request->request->get('user')['name']);
             $user->setLastName($request->request->get('user')['last_name']);
             $user->setEmail($request->request->get('user')['email']);
-            $password = $password_encoder->hashPassword($user, $request->request->get('user')['password']['first']);
+            $password = $password_hasher->hashPassword($user, $request->request->get('user')['password']['first']);
             $user->setPassword($password);
             $user->setRoles(['ROLE_USER']);
 
@@ -64,12 +79,16 @@ class SecurityController extends AbstractController
 
             $this->loginUserAutomatically($user);
 
-            return $this->redirectToRoute('admin_main_page');
+            return $this->redirectToRoute('admin');
         }
         return $this->render('front/register.html.twig', ['form' => $form->createView()]);
     }
 
 
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     private function loginUserAutomatically($user)
     {
         $token = new UsernamePasswordToken($user, 'main', $user->getRoles());

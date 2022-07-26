@@ -83,7 +83,7 @@ class Video
         return $this;
     }
 
-    public function getVimeoId($user): ?string
+    public function getVimeoId(): ?string
     {
        return $this->path;
     }
