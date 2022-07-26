@@ -5,10 +5,12 @@ namespace App\Controller\Admin;
 use App\Entity\Subscription;
 use App\Entity\Video;
 use App\Entity\User;
+use App\Form\UserType;
 use App\Utils\CategoryTreeAdminOptionList;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,10 +24,21 @@ class MainController extends AbstractController
     }
 
     #[Route('/', name: 'admin')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $user = $this->getUser();
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+        $isInvalid = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            exit('valid');
+        }
+
         return $this->render('/front/admin/my_profile.html.twig', [
-            'subscription' => $this->getUser()->getSubscription()
+            'subscription' => $this->getUser()->getSubscription(),
+            'form' => $form->createView(),
+            'isInvalid' => $isInvalid
         ]);
     }
 
@@ -73,11 +86,16 @@ class MainController extends AbstractController
     }
 
     #[Route('/delete-account/', name: 'delete_account')]
-    public function deleteAccount()
+    public function deleteAccount(): RedirectResponse
     {
         $entityManager = $this->doctrine->getManager();
         $user = $entityManager->getRepository(User::class)->find($this->getUser());
 
         $entityManager->remove($user);
+        $entityManager->flush();
+
+        session_destroy();
+
+        return $this->redirectToRoute('main_page');
     }
 }

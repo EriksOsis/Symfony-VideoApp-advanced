@@ -16,6 +16,7 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('vimeo_api_key', TextType::class)
             ->add('name', TextType::class)
             ->add('last_name', TextType::class)
             ->add('email', EmailType::class)
