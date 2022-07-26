@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Subscription;
 use App\Entity\Video;
 use App\Entity\User;
 use App\Utils\CategoryTreeAdminOptionList;
@@ -9,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -68,5 +70,14 @@ class MainController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('admin');
+    }
+
+    #[Route('/delete-account/', name: 'delete_account')]
+    public function deleteAccount()
+    {
+        $entityManager = $this->doctrine->getManager();
+        $user = $entityManager->getRepository(User::class)->find($this->getUser());
+
+        $entityManager->remove($user);
     }
 }

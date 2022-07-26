@@ -7,6 +7,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Traits\SaveSubscription;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -26,6 +27,7 @@ use App\Form\UserType;
 
 class SecurityController extends AbstractController
 {
+    use SaveSubscription;
 
     public function __construct(private ManagerRegistry $doctrine)
     {
@@ -48,14 +50,9 @@ class SecurityController extends AbstractController
         throw new \Exception('This should never be reached!');
     }
 
-    /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     #[Route('/register/{plan}', name: 'register', defaults: ['plan' => null])]
     public function register(UserPasswordHasherInterface $password_hasher, Request $request, SessionInterface $session, $plan): RedirectResponse|Response
     {
-
         if ($request->isMethod('GET')) {
             $session->set('planName', $plan);
             $session->set('planPrice', Subscription::getPlanDataPriceByName($plan));
@@ -73,6 +70,18 @@ class SecurityController extends AbstractController
             $password = $password_hasher->hashPassword($user, $request->request->get('user')['password']['first']);
             $user->setPassword($password);
             $user->setRoles(['ROLE_USER']);
+
+            $date = new \Datetime();
+            $date->modify('+1 month');
+            $subscription = new Subscription();
+            $subscription->setValidTo($date);
+            $subscription->setPlan($session->get('planName'));
+            if($plan == Subscription::getPlanDataNameByIndex(0)) {
+                $subscription->setFreePlanUsed(true);
+                $subscription->setPaymentStatus('paid');
+            }
+
+            $user->setSubscription($subscription);
 
             $entityManager->persist($user);
             $entityManager->flush();
