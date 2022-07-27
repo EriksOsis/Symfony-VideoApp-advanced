@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -24,21 +24,36 @@ class MainController extends AbstractController
     }
 
     #[Route('/', name: 'admin')]
-    public function index(Request $request): Response
+    public function index(Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = $this->getUser();
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['user' => $user]);
         $form->handleRequest($request);
         $isInvalid = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            exit('valid');
+            $entityManager = $this->doctrine->getManager();
+            $user->setName($request->get('user')['name']);
+            $user->setLastName($request->get('user')['last_name']);
+            $user->setEmail($request->get('user')['email']);
+            $password = $passwordHasher->hashPassword($user, $request->get('user')['password']['first']);
+            $user->setPassword($password);
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+
+            $this->addFlash('success', 'Your changes were saved!');
+            return $this->redirectToRoute('admin');
+        } elseif ($request->isMethod('POST')) {
+            $isInvalid = 'is-invalid';
         }
 
         return $this->render('/front/admin/my_profile.html.twig', [
             'subscription' => $this->getUser()->getSubscription(),
             'form' => $form->createView(),
-            'isInvalid' => $isInvalid
+            'isInvalid' => $isInvalid,
+            'user' => $user
         ]);
     }
 
