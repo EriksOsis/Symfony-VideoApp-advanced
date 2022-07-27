@@ -99,8 +99,18 @@ class CategoriesController extends AbstractController
             $entityManager->flush();
 
             return true;
-
         }
         return false;
+    }
+
+    public function getAllCategories(CategoryTreeAdminOptionList $categories, $editedCategory = null): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $categories->getCategoryList($categories->buildTree());
+        return $this->render('front/admin/_all_categories.html.twig', [
+            'categories' => $categories,
+            'editedCategory' => $editedCategory
+        ]);
     }
 }

@@ -72,17 +72,6 @@ class MainController extends AbstractController
         ]);
     }
 
-    public function getAllCategories(CategoryTreeAdminOptionList $categories, $editedCategory = null): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $categories->getCategoryList($categories->buildTree());
-        return $this->render('front/admin/_all_categories.html.twig', [
-            'categories' => $categories,
-            'editedCategory' => $editedCategory
-        ]);
-    }
-
     #[Route('/cancel-plan', name: 'cancel_plan')]
     public function cancelPlan(): RedirectResponse
     {

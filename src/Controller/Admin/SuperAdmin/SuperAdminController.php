@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Utils\Interfaces\UploaderInterface;
 
 class SuperAdminController extends AbstractController
 {
@@ -29,7 +30,7 @@ class SuperAdminController extends AbstractController
     }
 
     #[Route('/su/upload-video-locally', name: 'upload_video_locally')]
-    public function uploadVideoLocally(Request $request): Response
+    public function uploadVideoLocally(Request $request, UploaderInterface $fileUploader): Response
     {
         $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
 
@@ -41,11 +42,11 @@ class SuperAdminController extends AbstractController
             $entityManager = $this->doctrine->getManager();
 
             $file = $video->getUploadedVideo();
-            $fileName = 'to do';
+            $fileName = $fileUploader->upload($file);
 
             $base_path = Video::uploadFolder;
-            $video->setPath($base_path . $fileName);
-            $video->setTitle($fileName);
+            $video->setPath($base_path . $fileName[0]);
+            $video->setTitle($fileName[1]);
 
             $entityManager->persist($video);
             $entityManager->flush();
@@ -58,6 +59,22 @@ class SuperAdminController extends AbstractController
             'user' => $user
         ]);
     }
+
+    #[Route('/delete-video/{video}/{path}', name: "delete_video", requirements: ['path' => '.+'])]
+    public function deleteVideo(Video $video, $path, UploaderInterface $fileUploader)
+    {
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->remove($video);
+        $entityManager->flush();
+
+        if ($fileUploader->delete($path)) {
+            $this->addFlash('success', 'The video was successfully deleted');
+        } else {
+            $this->addFlash('danger', 'We were not able to delete this video. Check the video');
+        }
+        return $this->redirectToRoute('videos');
+    }
+
 
     #[Route('/su/users', name: 'users')]
     public function users(): Response
