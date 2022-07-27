@@ -21,7 +21,7 @@ trait SaveSubscription {
             $subscription = new Subscription();
         }
 
-        if ($subscription->getFreePlanUsed() && $plan == Subscription::getPlanDataNameByIndex(0)) {
+        if ($subscription->isFreePlanUsed() && $plan == Subscription::getPlanDataNameByIndex(0)) {
             return;
         }
 

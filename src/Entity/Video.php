@@ -6,6 +6,7 @@ use App\Repository\VideoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VideoRepository::class)]
 /**
@@ -17,6 +18,7 @@ class Video
     public const videoForNotLoggedInOrNoMembers = 113716040; // vimeo id
     public const VimeoPath = 'https://player.vimeo.com/video/';
     public const perPage = 5; // for pagination
+    public const uploadFolder = '/uploads/videos';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -46,6 +48,10 @@ class Video
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'dislikedVideos')]
     #[ORM\JoinTable(name: 'dislikes')]
     private Collection $usersThatDontLike;
+
+    #[Assert\NotBlank(message: 'Please, upload the video as an MP4 file.')]
+    #[Assert\File(mimeTypes: ['video/mp4'])]
+    private ?string $uploaded_video = null;
 
     public function __construct()
     {
@@ -85,7 +91,7 @@ class Video
 
     public function getVimeoId(): ?string
     {
-       return $this->path;
+        return $this->path;
     }
 
     public function getDuration(): ?int
@@ -186,6 +192,18 @@ class Video
     public function removeUsersThatDontLike(User $usersThatDontLike): self
     {
         $this->usersThatDontLike->removeElement($usersThatDontLike);
+
+        return $this;
+    }
+
+    public function getUploadedVideo(): ?string
+    {
+        return $this->uploaded_video;
+    }
+
+    public function setUploadedVideo(string $uploaded_video): self
+    {
+        $this->uploaded_video = $uploaded_video;
 
         return $this;
     }

@@ -64,10 +64,10 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->doctrine->getManager();
 
-            $user->setName($request->request->get('user')['name']);
-            $user->setLastName($request->request->get('user')['last_name']);
-            $user->setEmail($request->request->get('user')['email']);
-            $password = $password_hasher->hashPassword($user, $request->request->get('user')['password']['first']);
+            $user->setName($request->get('user')['name']);
+            $user->setLastName($request->get('user')['last_name']);
+            $user->setEmail($request->get('user')['email']);
+            $password = $password_hasher->hashPassword($user, $request->get('user')['password']['first']);
             $user->setPassword($password);
             $user->setRoles(['ROLE_USER']);
 
@@ -76,8 +76,9 @@ class SecurityController extends AbstractController
             $subscription = new Subscription();
             $subscription->setValidTo($date);
             $subscription->setPlan($session->get('planName'));
+            $subscription->setFreePlanUsed(true);
             if($plan == Subscription::getPlanDataNameByIndex(0)) {
-                $subscription->setFreePlanUsed(true);
+                $subscription->setFreePlanUsed(false);
                 $subscription->setPaymentStatus('paid');
             }
 
