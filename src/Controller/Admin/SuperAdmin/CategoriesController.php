@@ -3,6 +3,7 @@
 namespace App\Controller\Admin\SuperAdmin;
 
 use App\Entity\Category;
+use App\Entity\User;
 use App\Form\CategoryType;
 use App\Utils\CategoryTreeAdminList;
 use App\Utils\CategoryTreeAdminOptionList;
@@ -22,6 +23,7 @@ class CategoriesController extends AbstractController
     #[Route('/su/categories', name: 'categories', methods: ["GET", "POST"])]
     public function categories(CategoryTreeAdminList $categories, Request $request): Response
     {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
         $categories->getCategoryList($categories->buildTree());
 
         $category = new Category();
@@ -42,13 +44,15 @@ class CategoriesController extends AbstractController
         return $this->render('front/admin/categories.html.twig', [
             'categories' => $categories->categorylist,
             'form' => $form->createView(),
-            'isInvalid' => $isInvalid
+            'isInvalid' => $isInvalid,
+            'user' => $user
         ]);
     }
 
     #[Route('/su/edit-category/{id}', name: 'edit_category', methods: ["GET", "POST"])]
     public function editCategory(Category $category, Request $request): Response
     {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
         $form = $this->createForm(CategoryType::class, $category);
         $isInvalid = null;
 
@@ -65,7 +69,8 @@ class CategoriesController extends AbstractController
         return $this->render('/front/admin/edit_category.html.twig', [
             'category' => $category,
             'form' => $form->createView(),
-            'isInvalid' => $isInvalid
+            'isInvalid' => $isInvalid,
+            'user' => $user
         ]);
     }
 

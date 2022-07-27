@@ -60,13 +60,15 @@ class MainController extends AbstractController
     #[Route('/videos', name: 'videos')]
     public function videos(): Response
     {
+        $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
         if ($this->isGranted('ROLE_ADMIN')) {
             $videos = $this->doctrine->getRepository(Video::class)->findAll();
         } else {
             $videos = $this->getUser()->getLikedVideos();
         }
         return $this->render('/front/admin/videos.html.twig', [
-            'videos' => $videos
+            'videos' => $videos,
+            'user' => $user
         ]);
     }
 
