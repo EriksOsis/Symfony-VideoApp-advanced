@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 
 #[Route('/admin')]
@@ -24,7 +25,7 @@ class MainController extends AbstractController
     }
 
     #[Route('/', name: 'admin')]
-    public function index(Request $request, UserPasswordHasherInterface $passwordHasher): Response
+    public function index(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(UserType::class, $user, ['user' => $user]);
@@ -42,8 +43,10 @@ class MainController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
+            $translated = $translator->trans('Your changes were saved!');
 
-            $this->addFlash('success', 'Your changes were saved!');
+
+            $this->addFlash('success', $translated);
             return $this->redirectToRoute('admin');
         } elseif ($request->isMethod('POST')) {
             $isInvalid = 'is-invalid';
