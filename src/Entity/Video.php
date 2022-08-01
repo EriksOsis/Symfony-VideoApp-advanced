@@ -8,14 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+
+#[ORM\Table(name: 'videos')]
 #[ORM\Entity(repositoryClass: VideoRepository::class)]
-/**
- * @ORM\Table(name: "videos", indexes{@indexes: (name: "title_idx", columns: {"title"})})
- */
 class Video
 {
 
-    public const videoForNotLoggedInOrNoMembers = 113716040; // vimeo id
+    public const videoForNotLoggedInOrNoMembers = 'https://player.vimeo.com/video/113716040'; // vimeo id
     public const VimeoPath = 'https://player.vimeo.com/video/';
     public const perPage = 5; // for pagination
     public const uploadFolder = '/uploads/videos';
@@ -91,7 +90,12 @@ class Video
 
     public function getVimeoId(): ?string
     {
-        return $this->path;
+        if (str_contains($this->path, self::uploadFolder)) {
+            return $this->path;
+        }
+
+        $array = explode('/', $this->path);
+        return end($array);
     }
 
     public function getDuration(): ?int

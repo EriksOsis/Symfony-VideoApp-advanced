@@ -58,16 +58,19 @@ class MainController extends AbstractController
     }
 
     #[Route('/videos', name: 'videos')]
-    public function videos(): Response
+    public function videos(CategoryTreeAdminOptionList $categories): Response
     {
         $user = $this->doctrine->getRepository(User::class)->find($this->getUser());
         if ($this->isGranted('ROLE_ADMIN')) {
-            $videos = $this->doctrine->getRepository(Video::class)->findAll();
+            $categories->getCategoryList($categories->buildTree());
+            $videos = $this->doctrine->getRepository(Video::class)->findBy([], ['title' => 'ASC']);
         } else {
+            $categories = null;
             $videos = $this->getUser()->getLikedVideos();
         }
         return $this->render('/front/admin/videos.html.twig', [
             'videos' => $videos,
+            'categories' => $categories,
             'user' => $user
         ]);
     }

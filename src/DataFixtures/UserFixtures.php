@@ -34,7 +34,7 @@ class UserFixtures extends Fixture
     private function getUserData(): array
     {
         return [
-            ['John', 'Wayne', 'jw@symf6.loc', 'password', 'hjd8dehdh', ['ROLE_ADMIN']],
+            ['John', 'Wayne', 'jw@symf6.loc', 'password', 'e8112bfcd5db7174fd6385f618716701', ['ROLE_ADMIN']],
             ['Ēriks', 'Osis', 'eo@symf6.loc', 'password', null, ['ROLE_ADMIN']],
             ['Daniela', 'Putāne', 'dp@symf6.loc', 'password', null, ['ROLE_USER']],
         ];

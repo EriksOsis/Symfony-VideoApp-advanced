@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Video;
 use Doctrine\Persistence\ManagerRegistry;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,5 +34,18 @@ class CommentController extends AbstractController
         }
 
         return $this->redirectToRoute('video_details', ['video' => $video->getId()]);
+    }
+
+    #[Route('/delete-comment/{comment}', name: 'delete_comment')]
+    #[Security("user.getId() == comment.getUser().getId()")]
+    public function deleteComment(Comment $comment, Request $request): RedirectResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->remove($comment);
+        $entityManager->flush();
+
+        return $this->redirect($request->headers->get('referer'));
     }
 }
