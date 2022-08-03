@@ -30,6 +30,8 @@ services:
             $targetDirectory: '%videos_directory%'
 
 
-    App\Listeners\NewVideoListener:
-        tags:
-            - { name: doctrine.event_listener, event: postPersist}
+#    App\Listeners\NewVideoListener:
+#        tags:
+#            - { name: doctrine.event_listener, event: postPersist}
+
+    App\Utils\Interfaces\CacheInterface: '@App\Utils\FilesCache'

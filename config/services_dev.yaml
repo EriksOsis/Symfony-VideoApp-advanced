@@ -4,3 +4,5 @@ imports:
 services:
 
   App\Utils\Interfaces\UploaerInterface: '@App\Utils\LocalUploader'
+
+  App\Utils\Interfaces\CacheInterfaces: '@App\Utils\FilesCache'
